@@ -69,8 +69,6 @@ export class Account {
     }
 
     async getFile(fileId) {
-
-        this.lastApiCall = Date.now();
         let getResp = await retryApi(this.drive_v3.files.get({
             fileId: fileId
         })).catch(e => console.error(e));
@@ -103,7 +101,6 @@ export class Account {
         if(!this.needUpdate)
             return;
 
-        this.lastApiCall = Date.now();
         // for some reason, has to invoke this everytime
         let apiResp = await retryApi(this.drive_v3.about.get({
                           fields: "storageQuota"
