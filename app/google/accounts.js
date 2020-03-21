@@ -10,8 +10,7 @@ function sleep(ms) {
 
 async function retryApi(apiCoroutine) {
     return await retryableAsync(apiCoroutine, (e) => {
-            console.log(e.response);
-            if(e.code === 403) {
+            if(e.response.code === 403) {
                 return true;
             }
             return false;
@@ -47,9 +46,10 @@ export class Account {
 
     async uploadFile(media) {
         if(Date.now() - this.lastApiCall < DELAY_TIME) 
-            await sleep(Math.min(0, DELAY_TIME - Date.now() + this.lastApiCall));
+            await sleep(Math.max(0, DELAY_TIME - Date.now() + this.lastApiCall));
 
         this.lastApiCall = Date.now();
+
         let uploadResp = await retryApi(this.drive_v3.files.create({
             resource: {
                 "name": media.name
@@ -69,7 +69,6 @@ export class Account {
     }
 
     async getFile(fileId) {
-        this.lastApiCall = Date.now();
         let getResp = await retryApi(this.drive_v3.files.get({
             fileId: fileId
         })).catch(e => console.error(e));
@@ -86,7 +85,11 @@ export class Account {
 
 
     async updateFilePermission(fileId, permission = {"role": "reader","type": "anyone"}) {
+        if(Date.now() - this.lastApiCall < DELAY_TIME) 
+            await sleep(Math.min(0, DELAY_TIME - Date.now() + this.lastApiCall));
+
         this.lastApiCall = Date.now();
+
         return await retryApi(this.drive_v3.permissions.create({
                 requestBody: permission,
                 fileId: fileId
