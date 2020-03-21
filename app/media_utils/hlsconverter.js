@@ -107,19 +107,18 @@ export default class HLSConverter {
                 if(!this.m3u8Header)
                     this.m3u8Header = chunkLines.slice(0, chunkLines.length - 2).join("\n");
 
-                try {
-                    let extinf = parseFloat(chunkLines[chunkLines.length - 2].match(/#EXTINF:(.*)/)[1])+"";
-                    let chunkPath = chunkLines[chunkLines.length - 1];
-                    this.processedChunk.push({
-                        "status": 1,
-                        "extinf": extinf,
-                        "chunkPath": chunkPath
-                    });
-                } catch(e) {
-                    console.log(e);
-                    console.log(chunkLines[chunkLines.length - 2]);
-                    console.log(chunkLines[chunkLines.length - 1]);
-                }
+                let extinf = parseFloat(chunkLines[chunkLines.length - 2].match(/#EXTINF:(.*)/)[1])+"";
+                let chunkPath = chunkLines[chunkLines.length - 1];
+                this.processedChunk.push({
+                    "status": 1,
+                    "extinf": extinf,
+                    "chunkPath": chunkPath
+                });
+                console.log({
+                    "status": 1,
+                    "extinf": extinf,
+                    "chunkPath": chunkPath
+                });
             } catch (e) {
                 console.log(e);
                  this.error = true;
