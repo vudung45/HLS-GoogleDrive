@@ -129,7 +129,7 @@ export default class HLSConverter {
                     chunkPathIndex-=2;
                 }
                 console.log(toAdd.reverse());
-                toAdd.reverse().forEach(item => this.processedChunk.push(toAdd));
+                toAdd.reverse().forEach(item => this.processedChunk.push(item));
             } catch (e) {
                 console.log(e);
                  this.error = true;
