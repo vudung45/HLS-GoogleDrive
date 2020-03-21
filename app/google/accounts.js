@@ -45,9 +45,7 @@ export class Account {
 
 
     async uploadFile(media) {
-        if(Date.now() - this.lastApiCall < DELAY_TIME) {
-            let delayTime = DELAY_TIME - Date.now() + this.lastApiCall;
-            this.lastApiCall = Date.now() + DELAY_TIME - Date.now() + this.lastApiCall;
+        while(Date.now() - this.lastApiCall < DELAY_TIME) {
             await sleep(Math.max(0, DELAY_TIME - Date.now() + this.lastApiCall));
         }
 
@@ -89,9 +87,7 @@ export class Account {
 
 
     async updateFilePermission(fileId, permission = {"role": "reader","type": "anyone"}) {
-        if(Date.now() - this.lastApiCall < DELAY_TIME) {
-            let delayTime = DELAY_TIME - Date.now() + this.lastApiCall;
-            this.lastApiCall = Date.now() + DELAY_TIME - Date.now() + this.lastApiCall;
+        while(Date.now() - this.lastApiCall < DELAY_TIME) {
             await sleep(Math.max(0, DELAY_TIME - Date.now() + this.lastApiCall));
         }
 
