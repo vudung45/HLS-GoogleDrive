@@ -21,7 +21,7 @@ function getFileType(mimeType) {
         case "video/MP2T":
             fileType = "ts";
             break;
-        case "video/3gpp";
+        case "video/3gpp":
             fileType = "3gp";
             break;
         case "video/quicktime":
