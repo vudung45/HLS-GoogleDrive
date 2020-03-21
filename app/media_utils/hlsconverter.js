@@ -112,10 +112,11 @@ export default class HLSConverter {
                     chunkPathIndex--;
 
                 // skip if this chunk has already been added
-                if(this.processedChunk.length && chunkLines[chunkPathIndex] == this.processedChunk[this.processedChunk.length - 1].chunkPath)
+                if(this.processedChunk.length && chunkLines[chunkPathIndex] === this.processedChunk[this.processedChunk.length - 1].chunkPath) {
                     return;
+                }
 
-                let extinf = parseFloat(chunkPathIndex- 1].match(/#EXTINF:(.*)/)[1])+"";
+                let extinf = parseFloat(chunkLines[chunkPathIndex- 1].match(/#EXTINF:(.*)/)[1])+"";
                 let chunkPath = chunkLines[chunkPathIndex];
                 this.processedChunk.push({
                     "status": 1,
