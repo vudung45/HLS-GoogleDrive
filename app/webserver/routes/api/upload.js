@@ -27,7 +27,7 @@ function getFileType(mimeType) {
         case "video/quicktime":
             fileType = "mov";
             break;
-        case "video/x-msvideo";
+        case "video/x-msvideo":
             fileType = "avi";
             break;
         case "video/x-ms-wmv":
