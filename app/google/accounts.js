@@ -10,16 +10,14 @@ function sleep(ms) {
 
 async function retryApi(apiCoroutine) {
     return await retryableAsync(apiCoroutine, (e) => {
-            console.log("here");
+            console.log(e.response);
             if(e.code === 403) {
                 return true;
             }
             return false;
     })
 }
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+
 const DELAY_TIME = 500;
 
 export class Account {
@@ -58,7 +56,7 @@ export class Account {
             },
             media: media.payload(),
             fields: "id"
-        })).catch(e => {console.error(e)});
+        })).catch(e => console.error(e));
         
         this.needUpdate = true;
 
