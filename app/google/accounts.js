@@ -45,8 +45,11 @@ export class Account {
 
 
     async uploadFile(media) {
-        if(Date.now() - this.lastApiCall < DELAY_TIME) 
+        if(Date.now() - this.lastApiCall < DELAY_TIME) {
+            let delayTime = DELAY_TIME - Date.now() + this.lastApiCall;
+            this.lastApiCall = Date.now() + DELAY_TIME - Date.now() + this.lastApiCall;
             await sleep(Math.max(0, DELAY_TIME - Date.now() + this.lastApiCall));
+        }
 
         this.lastApiCall = Date.now();
         let uploadResp = await retryApi(this.drive_v3.files.create({
@@ -86,8 +89,11 @@ export class Account {
 
 
     async updateFilePermission(fileId, permission = {"role": "reader","type": "anyone"}) {
-        if(Date.now() - this.lastApiCall < DELAY_TIME) 
-            await sleep(Math.max(0, DELAY_TIME - (Date.now() - this.lastApiCall)));
+        if(Date.now() - this.lastApiCall < DELAY_TIME) {
+            let delayTime = DELAY_TIME - Date.now() + this.lastApiCall;
+            this.lastApiCall = Date.now() + DELAY_TIME - Date.now() + this.lastApiCall;
+            await sleep(Math.max(0, DELAY_TIME - Date.now() + this.lastApiCall));
+        }
 
         this.lastApiCall = Date.now();
 
