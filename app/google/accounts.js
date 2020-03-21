@@ -2,9 +2,22 @@ import {google}  from 'googleapis';
 import rp from "request-promise"
 import fs from 'fs';
 import Media from "../utils/media.js"
+import { retryableAsync } from "../utils/helper.js";
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function retryApi(apiCoroutine) {
+    return await retryableAsync(apiCoroutine, (e) => {
+            if(e.response 
+                && e.response.code === 403 
+                && e.response.errors 
+                && e.response.errors.filter(item => item.reason === "userRateLimitExceeded").length > 0) {
+                return true;
+            }
+            return false;
+    })
 }
 
 export class Account {
@@ -32,13 +45,13 @@ export class Account {
 
 
     async uploadFile(media) {
-        let uploadResp = await this.drive_v3.files.create({
+        let uploadResp = await retryApi(this.drive_v3.files.create({
             resource: {
                 "name": media.name
             },
             media: media.payload(),
             fields: "id"
-        }).catch(e => console.log(e));
+        })).catch(e => console.error(e));
         this.needUpdate = true;
 
         if(!uploadResp || !uploadResp.data || !("data" in uploadResp) || !("id" in uploadResp.data)) {
@@ -50,9 +63,9 @@ export class Account {
     }
 
     async getFile(fileId) {
-        let getResp = await this.drive_v3.files.get({
+        let getResp = await retryApi(this.drive_v3.files.get({
             fileId: fileId
-        }).catch(e => console.log(e));
+        })).catch(e => console.error(e));
 
         if(!getResp)
             throw "Failed to get fileId "+fileId
@@ -66,10 +79,10 @@ export class Account {
 
 
     async updateFilePermission(fileId, permission = {"role": "reader","type": "anyone"}) {
-        return await this.drive_v3.permissions.create({
+        return await retryApi(this.drive_v3.permissions.create({
                 requestBody: permission,
                 fileId: fileId
-        });
+        })).catch(e => console.error(e));
     }
 
     async updateMetadata() {
@@ -77,9 +90,9 @@ export class Account {
             return;
 
         // for some reason, has to invoke this everytime
-        let apiResp = await this.drive_v3.about.get({
+        let apiResp = await retryApi(this.drive_v3.about.get({
                           fields: "storageQuota"
-                      }).catch(e=> console.error(e));
+                      })).catch(e=> console.error(e));
 
         if(!apiResp || !apiResp.data || !apiResp.data.storageQuota) {
             console.log(apiResp);

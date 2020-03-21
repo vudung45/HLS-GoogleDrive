@@ -13,3 +13,38 @@ export function parseOptions(aux, template){
     });
     return options;
 }
+
+
+export async function retryableAsync(coroutine, retryPredicate, options) {
+
+    options = {
+        retries: 5,
+        delay: 100, // 100ms
+        scaleFactor: 2,
+        maxDelay: 1000, // 5s
+        maxRetry: 5,
+        returnVal: null,
+        ...options
+    }
+    try {
+        options.returnVal = await coroutine;
+    } catch (e) {
+        if(!retryPredicate(e)) {
+            throw e;
+        }
+
+        if(options.maxRetry <= 0)
+            throw e;
+
+        console.log("Retrying... Error:");
+        console.error(e);
+        let waitPromise = new Promise((resolve) => {
+            let delay = options.delay;
+            options.delay = Math.max(options.maxDelay, options.delay * options.scaleFactor);
+            --options.maxRetry;
+            setTimeout(() => {retryableAsync(coroutine, retryPredicate, options).then(() => resolve())}, delay);
+        });
+        await waitPromise;
+    }
+    return options.returnVal;
+}
