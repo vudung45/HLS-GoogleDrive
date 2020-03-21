@@ -107,8 +107,16 @@ export default class HLSConverter {
                 if(!this.m3u8Header)
                     this.m3u8Header = chunkLines.slice(0, chunkLines.length - 2).join("\n");
 
-                let extinf = parseFloat(chunkLines[chunkLines.length - 2].match(/#EXTINF:(.*)/)[1])+"";
-                let chunkPath = chunkLines[chunkLines.length - 1];
+                let chunkPathIndex = chunkLines.length - 1;
+                while(chunkLines[chunkPathIndex].includes("EXTINF"))
+                    chunkPathIndex--;
+
+                // skip if this chunk has already been added
+                if(this.processedChunk.length && chunkLines[chunkPathIndex] == this.processedChunk[this.processedChunk.length - 1].chunkPath)
+                    return;
+
+                let extinf = parseFloat(chunkPathIndex- 1].match(/#EXTINF:(.*)/)[1])+"";
+                let chunkPath = chunkLines[chunkPathIndex];
                 this.processedChunk.push({
                     "status": 1,
                     "extinf": extinf,
