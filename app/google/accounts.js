@@ -14,7 +14,7 @@ async function retryApi(apiCoroutine) {
                 return true;
             }
             return false;
-    })
+    }, {delay: 500})
 }
 
 const DELAY_TIME = 500; // 100ms
