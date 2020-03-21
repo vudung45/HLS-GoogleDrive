@@ -40,7 +40,7 @@ export async function retryableAsync(coroutine, retryPredicate, options) {
         console.error(e);
         let waitPromise = new Promise((resolve) => {
             let delay = options.delay;
-            options.delay = Math.max(options.maxDelay, options.delay * options.scaleFactor);
+            options.delay = Math.min(options.maxDelay, options.delay * options.scaleFactor);
             --options.maxRetry;
             setTimeout(() => {retryableAsync(coroutine, retryPredicate, options).then(() => resolve())}, delay);
         });

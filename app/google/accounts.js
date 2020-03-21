@@ -17,7 +17,7 @@ async function retryApi(apiCoroutine) {
     })
 }
 
-const DELAY_TIME = 500;
+const DELAY_TIME = 1000;
 
 export class Account {
     constructor(identifier, authClient) {
@@ -49,7 +49,6 @@ export class Account {
             await sleep(Math.max(0, DELAY_TIME - Date.now() + this.lastApiCall));
 
         this.lastApiCall = Date.now();
-
         let uploadResp = await retryApi(this.drive_v3.files.create({
             resource: {
                 "name": media.name
@@ -69,6 +68,8 @@ export class Account {
     }
 
     async getFile(fileId) {
+
+        this.lastApiCall = Date.now();
         let getResp = await retryApi(this.drive_v3.files.get({
             fileId: fileId
         })).catch(e => console.error(e));
@@ -86,7 +87,7 @@ export class Account {
 
     async updateFilePermission(fileId, permission = {"role": "reader","type": "anyone"}) {
         if(Date.now() - this.lastApiCall < DELAY_TIME) 
-            await sleep(Math.min(0, DELAY_TIME - Date.now() + this.lastApiCall));
+            await sleep(Math.max(0, DELAY_TIME - (Date.now() - this.lastApiCall)));
 
         this.lastApiCall = Date.now();
 
@@ -99,9 +100,6 @@ export class Account {
     async updateMetadata() {
         if(!this.needUpdate)
             return;
-
-        if(Date.now() - this.lastApiCall < DELAY_TIME) 
-            await sleep(Math.min(0, DELAY_TIME - Date.now() + this.lastApiCall));
 
         this.lastApiCall = Date.now();
         // for some reason, has to invoke this everytime
