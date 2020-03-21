@@ -111,10 +111,7 @@ export default class HLSConverter {
                 while(chunkLines[chunkPathIndex].includes("EXTINF"))
                     chunkPathIndex--;
 
-                // skip if this chunk has already been added
-                if(this.processedChunk.length && chunkLines[chunkPathIndex] === this.processedChunk[this.processedChunk.length - 1].chunkPath) {
-                    return;
-                }
+                let toAdd = [];
                 while(chunkPathIndex >= 0 
                         && (!this.processedChunk.length || chunkLines[chunkPathIndex] !== this.processedChunk[this.processedChunk.length - 1].chunkPath)) {
                     if(!chunkLines[chunkPathIndex].includes(".ts")) {
@@ -123,18 +120,16 @@ export default class HLSConverter {
                     }
                     let extinf = parseFloat(chunkLines[chunkPathIndex- 1].match(/#EXTINF:(.*)/)[1])+"";
                     let chunkPath = chunkLines[chunkPathIndex];
-                    this.processedChunk.push({
+                    toAdd.push({
                         "status": 1,
                         "extinf": extinf,
                         "chunkPath": chunkPath
                     });
-                    console.log({
-                        "status": 1,
-                        "extinf": extinf,
-                        "chunkPath": chunkPath
-                    });
+                    
                     chunkPathIndex-=2;
                 }
+                console.log(toAdd.reverse());
+                toAdd.reverse().forEach(item => this.processedChunk.push(toAdd));
             } catch (e) {
                 console.log(e);
                  this.error = true;
