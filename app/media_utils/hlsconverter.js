@@ -117,8 +117,10 @@ export default class HLSConverter {
                 }
                 while(!this.processedChunk.length || 
                         (chunkPathIndex >= 0 && chunkLines[chunkPathIndex] !== this.processedChunk[this.processedChunk.length - 1].chunkPath)) {
-                    if(!chunkLines[chunkPathIndex].includes(".ts"))
+                    if(!chunkLines[chunkPathIndex].includes(".ts")) {
+                        chunkPathIndex-=2;
                         continue;
+                    }
                     let extinf = parseFloat(chunkLines[chunkPathIndex- 1].match(/#EXTINF:(.*)/)[1])+"";
                     let chunkPath = chunkLines[chunkPathIndex];
                     this.processedChunk.push({
