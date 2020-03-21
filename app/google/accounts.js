@@ -10,7 +10,7 @@ function sleep(ms) {
 
 async function retryApi(apiCoroutine) {
     return await retryableAsync(apiCoroutine, (e) => {
-            console.log(e.response);
+            console.log("here");
             if(e.code === 403) {
                 return true;
             }
@@ -20,8 +20,8 @@ async function retryApi(apiCoroutine) {
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-const DELAY_TIME = 100;
-const API_RATE_LIMIT = 100;
+const DELAY_TIME = 500;
+
 export class Account {
     constructor(identifier, authClient) {
         this.identifier = identifier;
@@ -58,7 +58,7 @@ export class Account {
             },
             media: media.payload(),
             fields: "id"
-        })).catch(e => console.error(e));
+        })).catch(e => {console.error(e)});
         
         this.needUpdate = true;
 
