@@ -92,8 +92,10 @@ export default class HLSConverter {
         this.done = false;
         this.m3u8Header = null;
         this.outputStream.on("data", (chunk) => {
-            if(this.error) //ignore
+            if(this.error) { //ignore
+                this.outputStream.end();
                 return; 
+            }
             console.log("[HLSConverter] received new data...")
             // a bit in efficient, but who cares, its shorthand :D
             let chunkLines = chunk.toString().split(/\n+/).filter(_ => _ != "");
@@ -120,7 +122,9 @@ export default class HLSConverter {
                 }
             } catch (e) {
                 console.log(e);
-                this.outputStream.emit("error", e);
+                 this.error = true;
+                this.errorMessage = e;
+                this.outputStream.end();
             }
         });
         this.outputStream.on("error", (e) => {
