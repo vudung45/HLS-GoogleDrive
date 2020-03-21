@@ -1,0 +1,41 @@
+{
+    "name": "hls-googledrive",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+        "start": "node ./dist/webserver/app.js",
+        "build": "rimraf dist && npm run build-backend && npm run build-frontend && npm run get-credentials",
+        "get-credentials": "wget $SERVICE_ACCOUNTS -O service_accounts.zip; unzip service_accounts.zip -d ./app/credentials; rm service_accounts.zip",
+        "build-frontend": "cd ./webfrontend && npm install && npm run build",
+        "build-backend": "babel app/ --out-dir ./dist --copy-files",
+        "clean": "rimraf dist"
+    },
+    "dependencies": {
+        "@babel/cli": "^7.8.4",
+        "@babel/core": "^7.8.6",
+        "@babel/node": "^7.8.4",
+        "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
+        "@babel/plugin-transform-runtime": "^7.8.3",
+        "@babel/polyfill": "^7.8.3",
+        "@babel/preset-env": "^7.8.6",
+        "@babel/runtime": "^7.8.4",
+        "await-lock": "^2.0.1",
+        "bluebird": "^3.7.2",
+        "bull": "^3.13.0",
+        "express": "^4.17.1",
+        "fluent-ffmpeg": "^2.1.2",
+        "googleapis": "^47.0.0",
+        "ioredis": "^4.16.0",
+        "mongodb": "^3.5.4",
+        "mongoose": "^5.9.4",
+        "nodemon": "^2.0.2",
+        "promise": "^8.0.3",
+        "redis": "^3.0.2",
+        "request": "^2.88.2",
+        "request-promise": "^4.2.5",
+        "rimraf": "^3.0.2",
+        "serve-static": "^1.14.1",
+        "throng": "^4.0.0",
+        "uuid": "^7.0.1"
+    }
+}

@@ -1,0 +1,8 @@
+app/credentials/service_accounts
+node_modules
+package-lock.json
+dist
+*.mp4
+*.ts
+*.m3u8
+*.zip
