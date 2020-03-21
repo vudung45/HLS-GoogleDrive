@@ -87,6 +87,7 @@ export default class HLSConverter {
             "resolution": "0x0"
         }
         this.processedChunk = [];
+        this.distictChunkPath = new Set();
         this.error = false;
         this.errorMessage = null;
         this.done = false;
@@ -113,13 +114,14 @@ export default class HLSConverter {
 
                 let toAdd = [];
                 while(chunkPathIndex >= 0 
-                        && (!this.processedChunk.length || chunkLines[chunkPathIndex] != this.processedChunk[this.processedChunk.length - 1].chunkPath)) {
+                        && !distictChunkPath.has(chunkLines[chunkPathIndex])) {
                     if(!chunkLines[chunkPathIndex].includes(".ts")) {
                         chunkPathIndex-=2;
                         continue;
                     }
                     let extinf = parseFloat(chunkLines[chunkPathIndex- 1].match(/#EXTINF:(.*)/)[1])+"";
                     let chunkPath = chunkLines[chunkPathIndex];
+                    distictChunkPath.add(chunkLines[chunkPathIndex]);
                     toAdd.push({
                         "status": 1,
                         "extinf": extinf,
