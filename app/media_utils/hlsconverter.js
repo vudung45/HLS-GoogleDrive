@@ -113,7 +113,7 @@ export default class HLSConverter {
 
                 let toAdd = [];
                 while(chunkPathIndex >= 0 
-                        && (!this.processedChunk.length || chunkLines[chunkPathIndex] != this.processedChunk[this.processedChunk.length - 1].chunkPath)) {
+                        && (!this.processedChunk.length || chunkLines[chunkPathIndex] !== this.processedChunk[this.processedChunk.length - 1].chunkPath)) {
                     if(!chunkLines[chunkPathIndex].includes(".ts")) {
                         chunkPathIndex-=2;
                         continue;
@@ -128,8 +128,9 @@ export default class HLSConverter {
                     
                     chunkPathIndex-=2;
                 }
-                console.log(toAdd.reverse());
-                toAdd.reverse().forEach(item => this.processedChunk.push(item));
+                toAdd.reverse();
+                console.log(toAdd);
+                toAdd.forEach(item => this.processedChunk.push(item));
             } catch (e) {
                 console.log(e);
                  this.error = true;

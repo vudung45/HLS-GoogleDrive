@@ -101,10 +101,17 @@ export class Account {
         if(!this.needUpdate)
             return;
 
+        while(Date.now() - this.lastApiCall < DELAY_TIME) {
+            await sleep(Math.max(0, DELAY_TIME - Date.now() + this.lastApiCall));
+        }
+
+        this.lastApiCall = Date.now();
+
         // for some reason, has to invoke this everytime
         let apiResp = await retryApi(this.drive_v3.about.get({
                           fields: "storageQuota"
                       })).catch(e=> console.error(e));
+
 
         if(!apiResp || !apiResp.data || !apiResp.data.storageQuota) {
             console.log(apiResp);
