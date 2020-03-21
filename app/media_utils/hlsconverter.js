@@ -131,7 +131,7 @@ export default class HLSConverter {
                         "extinf": extinf,
                         "chunkPath": chunkPath
                     });
-                    chunkPathIndex--;
+                    chunkPathIndex-=2;
                 }
             } catch (e) {
                 console.log(e);
