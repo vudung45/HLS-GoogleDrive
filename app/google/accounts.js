@@ -10,16 +10,18 @@ function sleep(ms) {
 
 async function retryApi(apiCoroutine) {
     return await retryableAsync(apiCoroutine, (e) => {
-            if(e.response 
-                && e.response.code === 403 
-                && e.response.errors 
-                && e.response.errors.filter(item => item.reason === "userRateLimitExceeded").length > 0) {
+            console.log(e.response);
+            if(e.code === 403) {
                 return true;
             }
             return false;
     })
 }
-
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+const DELAY_TIME = 100;
+const API_RATE_LIMIT = 100;
 export class Account {
     constructor(identifier, authClient) {
         this.identifier = identifier;
@@ -32,6 +34,7 @@ export class Account {
             "usageInDrive": 0,
             "usageInDriveTrash": 0
         }
+        this.lastApiCall = Date.now();
     }
 
 
@@ -45,6 +48,10 @@ export class Account {
 
 
     async uploadFile(media) {
+        if(Date.now() - this.lastApiCall < DELAY_TIME) 
+            await sleep(Math.min(0, DELAY_TIME - Date.now() + this.lastApiCall));
+
+        this.lastApiCall = Date.now();
         let uploadResp = await retryApi(this.drive_v3.files.create({
             resource: {
                 "name": media.name
@@ -52,6 +59,7 @@ export class Account {
             media: media.payload(),
             fields: "id"
         })).catch(e => console.error(e));
+        
         this.needUpdate = true;
 
         if(!uploadResp || !uploadResp.data || !("data" in uploadResp) || !("id" in uploadResp.data)) {
@@ -63,6 +71,7 @@ export class Account {
     }
 
     async getFile(fileId) {
+        this.lastApiCall = Date.now();
         let getResp = await retryApi(this.drive_v3.files.get({
             fileId: fileId
         })).catch(e => console.error(e));
@@ -79,6 +88,7 @@ export class Account {
 
 
     async updateFilePermission(fileId, permission = {"role": "reader","type": "anyone"}) {
+        this.lastApiCall = Date.now();
         return await retryApi(this.drive_v3.permissions.create({
                 requestBody: permission,
                 fileId: fileId
@@ -89,6 +99,10 @@ export class Account {
         if(!this.needUpdate)
             return;
 
+        if(Date.now() - this.lastApiCall < DELAY_TIME) 
+            await sleep(Math.min(0, DELAY_TIME - Date.now() + this.lastApiCall));
+
+        this.lastApiCall = Date.now();
         // for some reason, has to invoke this everytime
         let apiResp = await retryApi(this.drive_v3.about.get({
                           fields: "storageQuota"
