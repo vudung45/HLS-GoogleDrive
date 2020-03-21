@@ -52,6 +52,7 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
     let i = 0;
     while(chunkInfo = await converter.getNextProcessedChunk().catch(e => {console.log(e); error.push(e);})) {
         progressQueueItem(queueItem, 1);
+        console.log("Received a chunk from HLSConverter:")
         console.log(chunkInfo);
         routines.push(fileUploader.uploadChunk(fs.createReadStream(chunkInfo.chunkPath), {
             fileType: "hls-chunk",
