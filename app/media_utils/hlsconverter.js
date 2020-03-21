@@ -115,19 +115,23 @@ export default class HLSConverter {
                 if(this.processedChunk.length && chunkLines[chunkPathIndex] === this.processedChunk[this.processedChunk.length - 1].chunkPath) {
                     return;
                 }
-
-                let extinf = parseFloat(chunkLines[chunkPathIndex- 1].match(/#EXTINF:(.*)/)[1])+"";
-                let chunkPath = chunkLines[chunkPathIndex];
-                this.processedChunk.push({
-                    "status": 1,
-                    "extinf": extinf,
-                    "chunkPath": chunkPath
-                });
-                console.log({
-                    "status": 1,
-                    "extinf": extinf,
-                    "chunkPath": chunkPath
-                });
+                while(chunkPathIndex >= 0 && chunkLines[chunkPathIndex] !== this.processedChunk[this.processedChunk.length - 1].chunkPath) {
+                    if(!chunkLines[chunkPathIndex].includes(".ts"))
+                        continue;
+                    let extinf = parseFloat(chunkLines[chunkPathIndex- 1].match(/#EXTINF:(.*)/)[1])+"";
+                    let chunkPath = chunkLines[chunkPathIndex];
+                    this.processedChunk.push({
+                        "status": 1,
+                        "extinf": extinf,
+                        "chunkPath": chunkPath
+                    });
+                    console.log({
+                        "status": 1,
+                        "extinf": extinf,
+                        "chunkPath": chunkPath
+                    });
+                    chunkPathIndex--;
+                }
             } catch (e) {
                 console.log(e);
                  this.error = true;
