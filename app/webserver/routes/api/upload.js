@@ -36,6 +36,9 @@ function getFileType(mimeType) {
         case "video/x-matroska":
             fileType = "mkv"
             break;
+        case "video/avi":
+            fileType = "avi";
+            break;
         default:
             break;
     }
