@@ -115,8 +115,8 @@ export default class HLSConverter {
                 if(this.processedChunk.length && chunkLines[chunkPathIndex] === this.processedChunk[this.processedChunk.length - 1].chunkPath) {
                     return;
                 }
-                while(!this.processedChunk.length || 
-                        (chunkPathIndex >= 0 && chunkLines[chunkPathIndex] !== this.processedChunk[this.processedChunk.length - 1].chunkPath)) {
+                while(chunkPathIndex >= 0 
+                        && (!this.processedChunk.length || chunkLines[chunkPathIndex] !== this.processedChunk[this.processedChunk.length - 1].chunkPath)) {
                     if(!chunkLines[chunkPathIndex].includes(".ts")) {
                         chunkPathIndex-=2;
                         continue;
