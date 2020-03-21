@@ -113,7 +113,7 @@ export default class HLSConverter {
 
                 let toAdd = [];
                 while(chunkPathIndex >= 0 
-                        && (!this.processedChunk.length || chunkLines[chunkPathIndex] !== this.processedChunk[this.processedChunk.length - 1].chunkPath)) {
+                        && (!this.processedChunk.length || chunkLines[chunkPathIndex] != this.processedChunk[this.processedChunk.length - 1].chunkPath)) {
                     if(!chunkLines[chunkPathIndex].includes(".ts")) {
                         chunkPathIndex-=2;
                         continue;
