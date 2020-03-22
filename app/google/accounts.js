@@ -3,15 +3,26 @@ import rp from "request-promise"
 import fs from 'fs';
 import Media from "../utils/media.js"
 import { retryableAsync } from "../utils/helper.js";
+import retry from 'async-retry';
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function retryApi(apiCoroutine) {
-    return await retryableAsync(apiCoroutine, (e) => {
-            return true;
-    }, {delay: 2000})
+    return await retryableAsync(async bail => {
+        let error = null;
+        const res = await apiCoroutine.catch(e => {
+            error = e;
+        });
+        if(error) {
+            if(error.code !== 403  || error.code !== 500) {
+                bail(error);
+                return;
+            }
+        }
+        return res;
+    }, {retries: 10, minTimeout: 2000, maxTimeout: 10000});
 }
 
 const DELAY_TIME = 500; // 100ms
