@@ -11,7 +11,7 @@ function sleep(ms) {
 async function retryApi(apiCoroutine) {
     return await retryableAsync(apiCoroutine, (e) => {
             return true;
-    }, {delay: 1000})
+    }, {delay: 2000})
 }
 
 const DELAY_TIME = 500; // 100ms
