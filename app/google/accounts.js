@@ -17,7 +17,7 @@ async function retryApi(apiCoroutine) {
     }, {delay: 1000})
 }
 
-const DELAY_TIME = 100; // 100ms
+const DELAY_TIME = 500; // 100ms
 
 export class Account {
     constructor(identifier, authClient) {
