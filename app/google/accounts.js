@@ -10,10 +10,7 @@ function sleep(ms) {
 
 async function retryApi(apiCoroutine) {
     return await retryableAsync(apiCoroutine, (e) => {
-            if(e.code === 403  || e.code === 500) {
-                return true;
-            }
-            return false;
+            return true;
     }, {delay: 1000})
 }
 
