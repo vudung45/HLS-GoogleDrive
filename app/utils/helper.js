@@ -26,14 +26,16 @@ export async function retryableAsync(coroutine, retryPredicate, options) {
         ...options
     }
     try {
-        options.returnVal = await coroutine;
+        options.returnVal = await coroutine.catch(e => {throw e;});
     } catch (e) {
         if(!retryPredicate(e)) {
             throw e;
         }
 
-        if(options.maxRetry <= 0)
+        if(options.maxRetry <= 0) {
+            console.log("Maximum retry. Throwing exception!")
             throw e;
+        }
 
         console.log("Retrying... Error:");
         console.error(e);
