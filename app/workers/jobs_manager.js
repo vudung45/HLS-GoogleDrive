@@ -76,7 +76,7 @@ export  class JobManager {
                 }, {new: true, upsert: true}).catch(e => console.error(e));
         }
         
-        await queue.add({jobId: jobDoc._id}, {attempts:3, timeout: 60000*10, jobId: jobDoc._id.toString()});
+        await queue.add({jobId: jobDoc._id}, {attempts:1, timeout: 60000*10, jobId: jobDoc._id.toString()});
         
         return jobDoc;
     }
@@ -101,7 +101,7 @@ export  class JobManager {
         // retry
         if(await queueJob.getState() === "completed")  {
             await queueJob.remove();
-            await queue.add({jobId: jobDoc._id}, {attempts:3, timeout: 60000*10, jobId: jobDoc._id.toString()});
+            await queue.add({jobId: jobDoc._id}, {attempts:1, timeout: 60000*10, jobId: jobDoc._id.toString()});
             return jobDoc;
         }
         
