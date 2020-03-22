@@ -156,6 +156,10 @@ export default class HLSConverter {
         this.command = convert(readSrc, this.outputStream, this.inputCodecData, inputOptions, outputOptions);;
     }
 
+    stop() {
+        this.command.kill();
+        this.outputstream.end();
+    }
     async getNextProcessedChunk() {
         if(this.error)
             throw this.errorMessage;
