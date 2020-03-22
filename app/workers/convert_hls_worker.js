@@ -50,16 +50,16 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
     let routines = [];
     let chunkPaths = []
     let i = 0;
-    while(chunkInfo = await converter.getNextProcessedChunk().catch(e => {console.log(e); error.push(e);})) {
+    while(!error.length && (chunkInfo = await converter.getNextProcessedChunk().catch(e => {console.log(e); error.push(e);}))) {
         progressQueueItem(queueItem, 1);
-        console.log("Received a chunk from HLSConverter:")
+        console.log("Received a chunk from HLSConverter:");
         console.log(chunkInfo);
         routines.push(fileUploader.uploadChunk(fs.createReadStream(chunkInfo.chunkPath), {
             fileType: "hls-chunk",
             aux: {
                 extinf: chunkInfo.extinf 
             }
-        }).then((chunk) => {progressQueueItem(queueItem, 1); return chunk;}));
+        }).catch(e => {error.push(e); throw e}));
         chunkPaths.push(chunkInfo.chunkPath);
     }
     let chunks = await Promise.all(routines).catch(e => {console.log(e); error.push(e);});
