@@ -158,7 +158,7 @@ export default class HLSConverter {
 
     stop() {
         this.command.kill();
-        this.outputstream.end();
+        this.outputStream.end();
     }
     async getNextProcessedChunk() {
         if(this.error)
