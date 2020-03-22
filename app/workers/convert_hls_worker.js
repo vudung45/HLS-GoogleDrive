@@ -50,11 +50,12 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
     let routines = [];
     let chunkPaths = []
     let i = 0;
+    let chunks = [];
     while(!error.length && (chunkInfo = await converter.getNextProcessedChunk().catch(e => {console.log(e); error.push(e);}))) {
         progressQueueItem(queueItem, 1);
         console.log("Received a chunk from HLSConverter:");
         console.log(chunkInfo);
-        routines.push(fileUploader.uploadChunk(fs.createReadStream(chunkInfo.chunkPath), {
+        chunks.push(await fileUploader.uploadChunk(fs.createReadStream(chunkInfo.chunkPath), {
             fileType: "hls-chunk",
             aux: {
                 extinf: chunkInfo.extinf 
@@ -74,9 +75,7 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
         throw new Error(converter.errorMessage)
     }
 
-
-
-    let chunks = await Promise.all(routines).catch(e => {console.log(e); error.push(e);});
+    // let chunks = await Promise.all(routines).catch(e => {console.log(e); error.push(e);});
     if(!chunks.length)
         error.push(new Error("Failed to chunkify this file. This could be due to failure to download"));
 
