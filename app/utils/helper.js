@@ -43,7 +43,7 @@ export async function retryableAsync(coroutine, retryPredicate, options) {
             --options.maxRetry;
             setTimeout(() => {retryableAsync(coroutine, retryPredicate, options).then(() => resolve()).catch(e => {throw e;})}, delay);
         });
-        await waitPromise;
+        await waitPromise.catch(e => {throw e;});
     }
     return options.returnVal;
 }
