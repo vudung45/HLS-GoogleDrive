@@ -16,10 +16,11 @@ async function retryApi(apiCoroutine) {
             error = e;
         });
         if(error) {
-            if(error.code !== 403  || error.code !== 500) {
-                bail(error);
-                return;
-            }
+            // if(error.code !== 403  || error.code !== 500) {
+            //     bail(error);
+            //     return;
+            // }
+            throw error;
         }
         return res;
     }, {retries: 20, minTimeout: 2000, maxTimeout: 100000});
