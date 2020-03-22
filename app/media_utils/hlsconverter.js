@@ -153,7 +153,7 @@ export default class HLSConverter {
 
 
         //pipe ffmpege to outputstream
-        convert(readSrc, this.outputStream, this.inputCodecData, inputOptions, outputOptions);;
+        this.command = convert(readSrc, this.outputStream, this.inputCodecData, inputOptions, outputOptions);;
     }
 
     async getNextProcessedChunk() {

@@ -62,6 +62,11 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
         }).catch(e => {error.push(e);}));
         chunkPaths.push(chunkInfo.chunkPath);
     }
+    if(!error.length) {
+        this.converter.command.end();
+        throw error;
+    }
+
     let chunks = await Promise.all(routines).catch(e => {console.log(e); error.push(e);});
     if(!chunks.length)
         error.push(new Error("Failed to chunkify this file. This could be due to failure to download"));
