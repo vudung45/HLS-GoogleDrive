@@ -160,8 +160,8 @@ async function processJob(jobDoc, fileUploader, queueItem) {
     // just grab the first item for now, because usually these files shouldn't have replicas
     let googleFileId = chunk.replicas[0];
     progressQueueItem(queueItem, 10);
-    console.log(`File to process: https://www.googleapis.com/drive/v3/files/${googleFileId}?alt=media&key=AIzaSyBj-qabVIiLub5CrxIYSNUF4HoRIJGxWBE`);
-    let hlsFile = await convertAndUpload(`https://www.googleapis.com/drive/v3/files/${googleFileId}?alt=media&key=AIzaSyBj-qabVIiLub5CrxIYSNUF4HoRIJGxWBE`, 
+    console.log(`File to process: https://www.googleapis.com/drive/v3/files/${googleFileId}?alt=media&key=AIzaSyDPWehN3F84sGtK4d-gOg0Tqqq4pTDSGCA`);
+    let hlsFile = await convertAndUpload(`https://www.googleapis.com/drive/v3/files/${googleFileId}?alt=media&key=AIzaSyDPWehN3F84sGtK4d-gOg0Tqqq4pTDSGCA`, 
                                           file.fileType, fileUploader, job.inputOptions, job.outputOptions, jobDoc, queueItem).catch(e => console.error(e));
     if(!hlsFile) {
         FILE_UPLOADER.models.conversionsCollection.update(jobDoc._id, {
