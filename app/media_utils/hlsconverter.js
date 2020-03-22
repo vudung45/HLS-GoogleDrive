@@ -115,6 +115,8 @@ export default class HLSConverter {
                 let toAdd = [];
                 while(chunkPathIndex >= 0 
                         && !distictChunkPath.has(chunkLines[chunkPathIndex])) {
+                    console.log(distictChunkPath);
+                    console.log(chunkLines[chunkPathIndex]);
                     if(!chunkLines[chunkPathIndex].includes(".ts")) {
                         chunkPathIndex-=2;
                         continue;
