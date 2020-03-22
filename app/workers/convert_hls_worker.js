@@ -69,6 +69,13 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
         throw error;
     }
 
+    if(converter.error) {
+        filesToCleanUp.push(...chunkPaths);
+        throw new Error(converter.errorMessage)
+    }
+
+
+
     let chunks = await Promise.all(routines).catch(e => {console.log(e); error.push(e);});
     if(!chunks.length)
         error.push(new Error("Failed to chunkify this file. This could be due to failure to download"));
@@ -177,7 +184,7 @@ async function processJob(jobDoc, fileUploader, queueItem) {
                         "status": ConversionStatus.FAILED,
                     },
                     "$push": {
-                        "messages": "Finished: Processing finished!"
+                        "messages": "Failed to convert file to HLS media type"
                     }
         }).catch(e => console.error(e));
         queueItem.log("Error: Failed to convert file to HLS media type").catch(e => console.error(e));
@@ -192,7 +199,7 @@ async function processJob(jobDoc, fileUploader, queueItem) {
             "convertedFile": hlsFile._id,
         },
         "$push": {
-             "messages": "Failed to convert file to HLS media type"
+             "messages": "Finished: Processing finished!"
         }
     }).catch(e => {
         throw "Conversion completed, but failed to update convertedFile";
