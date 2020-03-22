@@ -22,7 +22,7 @@ async function retryApi(apiCoroutine) {
             }
         }
         return res;
-    }, {retries: 10, minTimeout: 2000, maxTimeout: 10000});
+    }, {retries: 20, minTimeout: 2000, maxTimeout: 100000});
 }
 
 const DELAY_TIME = 500; // 100ms
