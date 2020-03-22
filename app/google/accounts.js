@@ -10,7 +10,7 @@ function sleep(ms) {
 }
 
 async function retryApi(apiCoroutine) {
-    return await retryableAsync(async bail => {
+    return await retry(async bail => {
         let error = null;
         const res = await apiCoroutine.catch(e => {
             error = e;
