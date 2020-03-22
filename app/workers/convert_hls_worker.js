@@ -62,6 +62,9 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
         }).catch(e => {error.push(e);}));
         chunkPaths.push(chunkInfo.chunkPath);
     }
+
+    filesToCleanUp.push(...chunkPaths);
+    
     if(!error.length) {
         this.converter.command.end();
         throw error;
@@ -71,7 +74,6 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
     if(!chunks.length)
         error.push(new Error("Failed to chunkify this file. This could be due to failure to download"));
 
-    filesToCleanUp.push(...chunkPaths);
 
     if(error.length)
         throw error;
