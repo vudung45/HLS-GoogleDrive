@@ -65,8 +65,8 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
 
     filesToCleanUp.push(...chunkPaths);
     
-    if(!error.length) {
-        this.converter.stop();
+    if(error.length) {
+        converter.stop();
         throw error;
     }
 
