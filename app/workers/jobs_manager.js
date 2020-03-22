@@ -91,7 +91,7 @@ export  class JobManager {
         if(!jobDoc)
             throw "Failed to get metadata for jobId "+ jobId;
 
-        // if the queueJob was never created then we create and start it
+        // if the queueJob was not created then we create and start it
         let queueJob = null;
         if(!(queueJob = await queue.getJob(jobId))) {
             await this.addJob(queueName, {...JSON.parse(JSON.stringify(jobDoc)), _id:null});
