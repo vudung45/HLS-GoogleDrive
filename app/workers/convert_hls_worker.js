@@ -59,7 +59,7 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
             aux: {
                 extinf: chunkInfo.extinf 
             }
-        }).catch(e => {error.push(e); throw e;}));
+        }).catch(e => {error.push(e);}));
         chunkPaths.push(chunkInfo.chunkPath);
     }
     let chunks = await Promise.all(routines).catch(e => {console.log(e); error.push(e);});
