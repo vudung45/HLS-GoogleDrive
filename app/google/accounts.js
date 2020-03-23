@@ -328,7 +328,7 @@ export class AccountManager {
 
     async getMostAvailableStorageAccount() {
         for(const key of Object.keys(this.accounts)) {
-            await this.accounts[key].updateMetadata().catch(e => console.error(e)));
+            await this.accounts[key].updateMetadata().catch(e => console.error(e));
             await sleep(100);
         }
 
