@@ -218,6 +218,7 @@ export class AccountManager {
             cancelJobs.push(job);
             return false;
         });
+        console.log("Cancelling jobs: "+cancelJobs.map(job => job.jobId));
         cancelJobs.forEach(job => this._eventEmitter.emit("jobCancel", job.jobId));
     }
 
@@ -242,6 +243,7 @@ export class AccountManager {
             let cancelListener = (cancelId) => {
                 if(jobId === cancelId) {
                     this._eventEmitter.off("jobCancel", cancelListener);
+                    console.log("Cancelled upload jobId "+jobId);
                     reject(jobId+" was cancelled.");
                 }
             }
