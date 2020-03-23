@@ -327,11 +327,11 @@ export class AccountManager {
     }   
 
     async getMostAvailableStorageAccount() {
-        let updateRoutines = []
-        for(const key of Object.keys(this.accounts))
-            updateRoutines.push(this.updateAccountMetadata(key).catch(e => console.error(e)));
+        for(const key of Object.keys(this.accounts)) {
+            await this.accounts[key].updateMetadata().catch(e => console.error(e)));
+            await sleep(100);
+        }
 
-        await Promise.all(updateRoutines).catch(e => console.error(e));
         return Object.values(this.accounts).sort()[0];
     }
  }
