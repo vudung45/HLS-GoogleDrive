@@ -27,7 +27,7 @@ async function retryApi(apiCoroutine) {
             throw error;
         }
         return res;
-    }, {retries: 5, minTimeout: 2000, maxTimeout: 10000});
+    }, {retries: 5, minTimeout: 2000, maxTimeout: 20000});
 }
 
 const DELAY_TIME = 100; // 100ms
@@ -166,7 +166,7 @@ class JobResponse {
 }
 
 const BATCH_SIZE = 10; // process 10 jobs at a time
-const BATCH_DELAY = 5000; // delay 1 seconds in between batches
+const BATCH_DELAY = 8000; // delay 1 seconds in between batches
 
 /* Managing multiple service accounts */
 export class AccountManager {
