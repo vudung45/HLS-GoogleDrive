@@ -127,7 +127,7 @@ export class Account {
 
 
         if(!apiResp || !apiResp.data || !apiResp.data.storageQuota) {
-            console.log(apiResp);
+            throw "Failed to upload account metadata";
             return;
         }
 
@@ -166,7 +166,7 @@ class JobResponse {
 }
 
 const BATCH_SIZE = 10; // process 10 jobs at a time
-const BATCH_DELAY = 8000; // delay 1 seconds in between batches
+const BATCH_DELAY = 5000; // delay 10 seconds in between batches
 
 /* Managing multiple service accounts */
 export class AccountManager {
@@ -277,6 +277,34 @@ export class AccountManager {
         return googleFileId;
     }
 
+    async updateAccountMetadata(accountIdentifier) {
+        let jobId = uuidv4();
+        let job = new QueueJob("uploadFile", {identifier: accountIdentifier}, jobId);
+        this._jobQueue.push(job);
+        return new Promise((resolve, reject) => {
+            let finishListener = () => {
+                if(jobId in this.jobResponse) {
+                    this._eventEmitter.off("jobFinish", finishListener);
+                    if(this.jobResponse[jobId].error) {
+                        console.error("Failed to get account metadata");
+                        reject(this.jobResponse[jobId].error);
+                    } else {
+                        console.log("Done getting account metadata");
+                        resolve(this.jobResponse[jobId].response);
+                    }
+                }
+            }
+            this._eventEmitter.on("jobFinish", finishListener);
+        });
+    }
+
+    async _updateAccountMetadata(aux) {
+        await this.accounts[aux.identifier].updateMetadata().catch(e => {
+            console.error(e);
+            throw "[Account Manager] Failed to upload account "+aux.identifier+" metadata"
+        });
+    }
+
     addAccount(account) {
         if(account.identifier in this.accounts)
             return account.identifier;
@@ -301,7 +329,7 @@ export class AccountManager {
     async getMostAvailableStorageAccount() {
         let updateRoutines = []
         for(const key of Object.keys(this.accounts))
-            updateRoutines.push(this.accounts[key].updateMetadata().catch(e => console.error(e)));
+            updateRoutines.push(this.updateAccountMetadata(key).catch(e => console.error(e)));
 
         await Promise.all(updateRoutines).catch(e => console.error(e));
         return Object.values(this.accounts).sort()[0];
