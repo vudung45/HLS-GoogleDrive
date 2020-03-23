@@ -150,10 +150,11 @@ export class Account {
 }
 
 class QueueJob {
-    constructor(jobName, aux, jobId) {
+    constructor(jobName, aux, jobId, sessionId = null) {
         this.jobName = jobName;
         this.aux = aux;
         this.jobId = jobId;
+        this.sessionId = sessionId;
     }
 }
 
@@ -165,7 +166,7 @@ class JobResponse {
 }
 
 const BATCH_SIZE = 10; // process 10 jobs at a time
-const BATCH_DELAY = 2000; // delay 1 seconds in between batches
+const BATCH_DELAY = 3000; // delay 1 seconds in between batches
 
 /* Managing multiple service accounts */
 export class AccountManager {
@@ -201,20 +202,33 @@ export class AccountManager {
             } catch (e) {
                 console.error(e);
             }
-            await sleep(Math.max(1, BATCH_DELAY * jobsToExecute.length / BATCH_SIZE));
+            await sleep(Math.max(100, BATCH_DELAY * jobsToExecute.length / BATCH_SIZE));
         }
     }
 
+    removeQueueJobs(sessionId) {
+        if(!sessionId)
+            throw "Please provide sessionid";
 
-    uploadFile(media, permission={"role": "reader","type": "anyone"}) {
+        let cancelJobs = [];
+        this._jobQueue = this._jobQueue.filter(job => { 
+            if(job.sessionId != sessionId)
+                return true;
+
+            cancelJobs.push(job);
+            return false;
+        });
+        cancelJobs.forEach(job => this._eventEmitter.emit("jobCancel", job.jobId));
+    }
+
+    uploadFile(media, permission={"role": "reader","type": "anyone"}, uploadSessionId=null) {
         let jobId = uuidv4();
-        let job = new QueueJob("uploadFile", {media: media, permission: permission}, jobId);
+        let job = new QueueJob("uploadFile", {media: media, permission: permission}, jobId, uploadSessionId);
         this._jobQueue.push(job);
         return new Promise((resolve, reject) => {
-            let listener = () => {
-
+            let finishListener = () => {
                 if(jobId in this.jobResponse) {
-                    this._eventEmitter.off("jobFinish", listener);
+                    this._eventEmitter.off("jobFinish", finishListener);
                     if(this.jobResponse[jobId].error) {
                         console.error("Failed to upload file");
                         reject(this.jobResponse[jobId].error);
@@ -225,7 +239,14 @@ export class AccountManager {
 
                 }
             }
-            this._eventEmitter.on("jobFinish", listener);
+            let cancelListener = (cancelId) => {
+                if(jobId === cancelId) {
+                    this._eventEmitter.off("jobCancel", cancelListener);
+                    reject(jobId+" was cancelled.");
+                }
+            }
+            this._eventEmitter.on("jobFinish", finishListener);
+            this._eventEmitter.on("jobCancel", cancelListener);
         });
     }
 

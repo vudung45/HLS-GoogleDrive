@@ -84,9 +84,10 @@ export class FileUploader {
     async close() {
         delete SINGLETONS[this._loginURI+"_"+this._db];
         await this.models.close()
+        accountManager.stop();
     }
 
-    async uploadChunkifiedFile(chunkStreams, options) {
+    async uploadChunkifiedFile(chunkStreams, options, uploadSessionId=null) {
         await this.assertAccountManager();
 
         options = parseOptions(options, uploadChunkifiedFile_OPTIONS_TEMPLATE);
@@ -97,7 +98,7 @@ export class FileUploader {
 
         try {
             await Bluebird.mapSeries(chunkStreams, async (chunkStream, index) => {
-                let chunk = await this.uploadChunk(chunkStream, {fileType: options.fileType});
+                let chunk = await this.uploadChunk(chunkStream, {fileType: options.fileType}, uploadSessionId);
                 // better error handling here
                 if(!chunk) 
                     throw "error";
@@ -112,13 +113,13 @@ export class FileUploader {
         return await this._generateFileInstance({...options, chunks: chunkIds});;
     }
 
-    async uploadFile(fileReadStream, options) {
+    async uploadFile(fileReadStream, options, uploadSessionId=null) {
         await this.assertAccountManager();
 
         options = parseOptions(options, chunkifyUpload_OPTIONS_TEMPLATE);
 
         if(options.chunkSize == 0) // single-chunk file
-            return await this.uploadChunkifiedFile([fileReadStream], {...options, fileType: options.fileType});
+            return await this.uploadChunkifiedFile([fileReadStream], {...options, fileType: options.fileType}, uploadSessionId);
 
         let chunkify = new ChunkifyReadStream(options.chunkSize);
         fileReadStream.pipe(chunkify);
@@ -127,7 +128,7 @@ export class FileUploader {
         while(chunkStream = await chunkify.getNextChunkStream())
             chunkStreams.push(chunkStream)
 
-        return await this.uploadChunkifiedFile(chunkStreams, {...options, fileType: `chunkified-${options.fileType}`});
+        return await this.uploadChunkifiedFile(chunkStreams, {...options, fileType: `chunkified-${options.fileType}`}, uploadSessionId);
     }
 
 
@@ -136,11 +137,15 @@ export class FileUploader {
         return r;
     }
 
-    async uploadChunk(chunkStream, options) {
+    async stopPendingUpload(uploadSessionId) {
+        this.accountManager.removeQueueJobs(uploadSessionId);
+    }
+
+    async uploadChunk(chunkStream, options, uploadSessionId=null) {
         await this.assertAccountManager();
         
         let media = new Media("text/plain", chunkStream);
-        let googleFileId = await this.accountManager.uploadFile(media).catch(e => console.error(e));
+        let googleFileId = await this.accountManager.uploadFile(media, uploadSessionId).catch(e => console.error(e));
         if(!googleFileId) 
             throw "Failed to upload chunk";
 

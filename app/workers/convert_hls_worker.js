@@ -59,30 +59,37 @@ async function convertAndUpload(src, fileType, fileUploader, inputOptions, outpu
             aux: {
                 extinf: chunkInfo.extinf 
             }
-        }).catch(e => {console.error(e); error.push(e);}));
+        }, jobDoc._id.toString()).catch(e => {console.error(e); error.push(e);}));
         chunkPaths.push(chunkInfo.chunkPath);
     }
     
     if(error.length) {
         converter.stop();
         filesToCleanUp.push(...chunkPaths);
+        fileUploader.stopPendingUpload(jobDoc._id.toString());
         throw error;
     }
 
     if(converter.error) {
+        converter.stop();
         filesToCleanUp.push(...chunkPaths);
+        fileUploader.stopPendingUpload(jobDoc._id.toString());
         throw new Error(converter.errorMessage)
     }
 
     let chunks = await Promise.all(routines).catch(e => {console.log(e); error.push(e);});
-    if(!chunks.length)
+    if(!chunks.length) 
         error.push(new Error("Failed to chunkify this file. This could be due to failure to download"));
 
     filesToCleanUp.push(...chunkPaths);
 
 
-    if(error.length)
+    if(error.length) {
+        converter.stop();
+        filesToCleanUp.push(...chunkPaths);
+        fileUploader.stopPendingUpload(jobDoc._id.toString());
         throw error;
+    }
 
     let file = await filesCollection.addFile(new HLSFileMetadata({
                     chunks: chunks.map(chunk => chunk._id),
