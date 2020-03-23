@@ -93,7 +93,7 @@ router.get("/hlsPlaylist", async (req, res) => {
         //filter out unfinished conversion jobs
         conversionDocs = conversionDocs.filter(c => c.convertedFile != null);
 
-        return res.set('Content-Type', "application/vnd.apple.mpegurl").send(generateM3U8MasterPlaylist(conversionDocs.map(c => c.convertedFile)));
+        return res.set('Content-Type', "    application/x-mpegURL").send(generateM3U8MasterPlaylist(conversionDocs.map(c => c.convertedFile)));
     } catch(e) {
         console.log(e);
         res.status(500).json({
@@ -137,7 +137,7 @@ router.get("/hls", async (req, res) => {
             });
             return;
         }
-        res.set('Content-Type', "application/vnd.apple.mpegurl").send(generateM3U8Content(m3u8Header, fileDoc.chunks));
+        res.set('Content-Type', "application/x-mpegURL").send(generateM3U8Content(m3u8Header, fileDoc.chunks));
     } catch (e) {
         console.log(e)
         res.status(500).json({

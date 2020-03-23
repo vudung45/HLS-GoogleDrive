@@ -23,7 +23,7 @@ const HLS_RESOLUTION = {
             "b:v": "7800000",
             "crf": 23,
             "f": "hls",
-            "hls_time": 6,
+            "hls_time": 10,
             "hls_list_size": 0,
             "preset": "veryfast"
         }
@@ -38,7 +38,7 @@ const HLS_RESOLUTION = {
             "b:v": "4500000",
             "crf": 23,
             "f": "hls",
-            "hls_time": 6,
+            "hls_time": 10,
             "hls_list_size": 0,
             "preset": "veryfast"
         }
@@ -53,7 +53,7 @@ const HLS_RESOLUTION = {
             "b:v": "365000",
             "crf": 23,
             "f": "hls",
-            "hls_time": 6,
+            "hls_time": 10,
             "hls_list_size": 0,
             "preset": "veryfast"
         }
