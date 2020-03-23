@@ -222,7 +222,7 @@ export class AccountManager {
         cancelJobs.forEach(job => this._eventEmitter.emit("jobCancel", job.jobId));
     }
 
-    uploadFile(media, permission={"role": "reader","type": "anyone"}, uploadSessionId=null) {
+    uploadFile(media,  uploadSessionId=null, permission={"role": "reader","type": "anyone"}) {
         let jobId = uuidv4();
         let job = new QueueJob("uploadFile", {media: media, permission: permission}, jobId, uploadSessionId);
         this._jobQueue.push(job);
