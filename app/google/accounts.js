@@ -279,7 +279,7 @@ export class AccountManager {
 
     async updateAccountMetadata(accountIdentifier) {
         let jobId = uuidv4();
-        let job = new QueueJob("uploadFile", {identifier: accountIdentifier}, jobId);
+        let job = new QueueJob("updateAccountMetadata", {identifier: accountIdentifier}, jobId);
         this._jobQueue.push(job);
         return new Promise((resolve, reject) => {
             let finishListener = () => {
