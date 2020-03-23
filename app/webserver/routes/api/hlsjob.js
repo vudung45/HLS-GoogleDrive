@@ -171,7 +171,7 @@ router.post("/create", async(req, res) => {
         }
 
         let inputOptions = HLS_RESOLUTION[resolution].inputOptions;
-        inputOptions["f"] = fileDoc.fileType; //set file type
+        //inputOptions["f"] = fileDoc.fileType; //set file type
         let outputOptions = HLS_RESOLUTION[resolution].outputOptions;
 
         // use identifer to avoid creating the same job twice

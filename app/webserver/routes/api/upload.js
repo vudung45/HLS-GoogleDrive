@@ -9,42 +9,42 @@ const MONGODB_MODELS = new MongoDBModels(MONGODB_CREDENTIALS.loginURI, MONGODB_C
 const FILE_UPLOADER = new FileUploader(MONGODB_CREDENTIALS.loginURI, MONGODB_CREDENTIALS.dbName);
 router.use(express.json());
 
-function getFileType(mimeType) {
-    let fileType = null;    
-    switch(mimeType) {
-        case "video/x-flv":
-            fileType = "flv";
-            break;
-        case "video/mp4":
-            fileType = "mp4";
-            break;
-        case "video/MP2T":
-            fileType = "ts";
-            break;
-        case "video/3gpp":
-            fileType = "3gp";
-            break;
-        case "video/quicktime":
-            fileType = "mov";
-            break;
-        case "video/x-msvideo":
-            fileType = "avi";
-            break;
-        case "video/x-ms-wmv":
-            fileType = "wmv"
-            break;
-        case "video/x-matroska":
-            fileType = "mkv"
-            break;
-        case "video/avi":
-            fileType = "avi";
-            break;
-        default:
-            break;
-    }
-    return fileType;
+// function getFileType(mimeType) {
+//     let fileType = null;    
+//     switch(mimeType) {
+//         case "video/x-flv":
+//             fileType = "flv";
+//             break;
+//         case "video/mp4":
+//             fileType = "mp4";
+//             break;
+//         case "video/MP2T":
+//             fileType = "ts";
+//             break;
+//         case "video/3gpp":
+//             fileType = "3gp";
+//             break;
+//         case "video/quicktime":
+//             fileType = "mov";
+//             break;
+//         case "video/x-msvideo":
+//             fileType = "avi";
+//             break;
+//         case "video/x-ms-wmv":
+//             fileType = "wmv"
+//             break;
+//         case "video/x-matroska":
+//             fileType = "mkv"
+//             break;
+//         case "video/avi":
+//             fileType = "avi";
+//             break;
+//         default:
+//             break;
+//     }
+//     return fileType;
 
-}
+// }
 router.get("/get", async (req, res) => {
     try {
         if (!req.query.uploadId) {
@@ -96,7 +96,7 @@ router.get("/googledrive", async (req, res) => {
             });
             return;
         }
-        let fileType = req.query.fileType ? req.query.fileType : getFileType(googleFileMetadata.data.mimeType);
+        let fileType = req.query.fileType ? req.query.fileType : googleFileMetadata.data.mimeType;
         if(!fileType) {
             res.status(501).json({
                 status: 0,
