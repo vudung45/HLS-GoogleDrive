@@ -1,9 +1,13 @@
 import {google}  from 'googleapis';
 import rp from "request-promise"
 import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+import retry from 'async-retry';
+import  {EventEmitter} from  'events';
+
 import Media from "../utils/media.js"
 import { retryableAsync } from "../utils/helper.js";
-import retry from 'async-retry';
+
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -16,6 +20,7 @@ async function retryApi(apiCoroutine) {
             error = e;
         });
         if(error) {
+            console.log(error);
             // if(error.code !== 403  || error.code !== 500) {
             //     bail(error);
             //     return;
@@ -23,10 +28,10 @@ async function retryApi(apiCoroutine) {
             throw error;
         }
         return res;
-    }, {retries: 20, minTimeout: 2000, maxTimeout: 100000});
+    }, {retries: 5, minTimeout: 2000, maxTimeout: 10000});
 }
 
-const DELAY_TIME = 500; // 100ms
+const DELAY_TIME = 100; // 100ms
 
 export class Account {
     constructor(identifier, authClient) {
@@ -145,6 +150,24 @@ export class Account {
     
 }
 
+class QueueJob {
+    constructor(jobName, aux, jobId) {
+        this.jobName = jobName;
+        this.aux = aux;
+        this.jobId = jobId;
+    }
+}
+
+class JobResponse {
+    constructor(response, error) {
+        this.response = response;
+        this.error = error;
+    }
+}
+
+const BATCH_SIZE = 10; // process 10 jobs at a time
+const BATCH_DELAY = 1000; // delay 1 seconds in between batches
+
 /* Managing multiple service accounts */
 export class AccountManager {
     constructor(accounts=[]) {
@@ -152,7 +175,84 @@ export class AccountManager {
         accounts.forEach((acc) => {
             accounts[acc.identifier] = acc;
         });
+        this._jobQueue = []; // to avoid google drive rate limit
+        this._eventEmitter = new EventEmitter();
+        this.jobResponse = {}
         this._last_updates = {}
+        this.stopRoutine = false;
+        this._processJobsRoutine();
+    }
+
+    async _processJobsRoutine(){
+        while(!this.stopRoutine) {
+            let jobsToExecute = this._jobQueue.splice(0, BATCH_SIZE);
+            try {
+                let routines = jobsToExecute.map(job => {
+                        return this["_"+job.jobName](job.aux)
+                                    .then(r => {
+                                        this.jobResponse[job.jobId] = new JobResponse(r, null); 
+                                        this._eventEmitter.emit("jobFinish");
+                                    })
+                                    .catch(e => {
+                                        this.jobResponse[job.jobId] = new JobResponse(null, e); 
+                                        this._eventEmitter.emit("jobFinish");
+                                    });
+                        });
+                await Promise.all(routines).catch(e => console.error(e)); // this shouldn't throw any error thou
+            } catch (e) {
+                console.error(e);
+            }
+            await sleep(BATCH_DELAY);
+        }
+    }
+
+
+    uploadFile(media, permission={"role": "reader","type": "anyone"}) {
+        let jobId = uuidv4();
+        let job = new QueueJob("uploadFile", {media: media, permission: permission}, jobId);
+        this._jobQueue.push(job);
+        return new Promise((resolve, reject) => {
+            let listener = () => {
+
+                if(jobId in this.jobResponse) {
+                    this._eventEmitter.off("jobFinish", listener);
+                    if(this.jobResponse[jobId].error) {
+                        console.error("Failed to upload file");
+                        reject(this.jobResponse[jobId].error);
+                    } else {
+                        console.log("Done uploading file");
+                        resolve(this.jobResponse[jobId].response);
+                    }
+
+                }
+            }
+            this._eventEmitter.on("jobFinish", listener);
+        });
+    }
+
+
+    async _uploadFile(aux) {
+        aux = {
+            ...aux,
+            permission: {
+                "role": "reader",
+                "type": "anyone", 
+                ...(aux.permission ? aux.permission : {})
+            }
+        }
+        let availableAccount = await this.getMostAvailableStorageAccount().catch(e => console.error(e));
+
+        if(!availableAccount)
+            throw "No available accounts";
+
+        let googleFileId = await availableAccount.uploadFile(aux.media).catch(e => console.error(e));
+        if(!googleFileId)
+            throw "Failed to upload";
+
+        if(!(await availableAccount.updateFilePermission(googleFileId, aux.permission).catch(e => console.error(e))))
+            throw "Failed to upload file permission";
+
+        return googleFileId;
     }
 
     addAccount(account) {
@@ -163,6 +263,10 @@ export class AccountManager {
 
         return account.identifier;
     } 
+
+    stop() {
+        this.stopRoutine = true;
+    }
 
     async updateAccountsMetadata() {
         let routines = Object.values(this.accounts).map(acc => {

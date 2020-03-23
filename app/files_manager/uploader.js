@@ -140,18 +140,9 @@ export class FileUploader {
         await this.assertAccountManager();
         
         let media = new Media("text/plain", chunkStream);
-        let selectedAccount =  await this.accountManager.getMostAvailableStorageAccount();
-        if(!selectedAccount) 
-            throw "No available accounts";
-
-        let googleFileId = await selectedAccount.uploadFile(media).catch(e => console.error(e));
-
+        let googleFileId = await this.accountManager.uploadFile(media).catch(e => console.error(e));
         if(!googleFileId) 
             throw "Failed to upload chunk";
-
-        // TODO: add better error handling here
-        if(!(await selectedAccount.updateFilePermission(googleFileId).catch(e => console.error(e))))
-            throw "Failed to set file permission to public";
 
         let chunk = await this.models.chunksCollection.addChunk({...options, fileType: options.fileType, replicas: [googleFileId]}).catch(e => console.log(e));
 

@@ -29,8 +29,22 @@ const readFile = promisify(fs.readFile);
 // })();
 
 
+(async function() {
+   let accountManager = new AccountManager();
+    let accounts = await generateAccounts(GoogleCredentialsConfig.service_accounts)
+
+    accounts.forEach(account => {
+        accountManager.addAccount(account);
+    });
+
+    let media = new Media("text/plain", fs.createReadStream("./output.m3u8"));
+    let fileId = await accountManager.uploadFile(media);
+    accountManager.stop();
+    console.log(fileId);
+})();
+
 // (async function() {
-//    let accountManager = new AccountManager();
+//     let accountManager = new AccountManager();
 //     let accounts = await generateAccounts(GoogleCredentialsConfig.service_accounts)
 
 //     accounts.forEach(account => {
@@ -42,30 +56,8 @@ const readFile = promisify(fs.readFile);
 //     console.log(selectedAccount);
 //     selectedAccount =  await accountManager.getMostAvailableStorageAccount();
 //     await selectedAccount.updateMetadata();
-//     console.log(selectedAccount);
-//     await selectedAccount.updateMetadata();
-//     let media = new Media("text/plain", fs.createReadStream("./test_upload"));
-//     let fileId = await selectedAccount.uploadFile(media);
-//     console.log(fileId);
-//     await selectedAccount.updateFilePermission(fileId); // set public by default
-//     console.log(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=AIzaSyBj-qabVIiLub5CrxIYSNUF4HoRIJGxWBE`);
+//     console.log(await selectedAccount.genAPIHeaders())
 // })();
-
-(async function() {
-    let accountManager = new AccountManager();
-    let accounts = await generateAccounts(GoogleCredentialsConfig.service_accounts)
-
-    accounts.forEach(account => {
-        accountManager.addAccount(account);
-    });
-
-    let selectedAccount =  await accountManager.getMostAvailableStorageAccount();
-    await selectedAccount.updateMetadata();
-    console.log(selectedAccount);
-    selectedAccount =  await accountManager.getMostAvailableStorageAccount();
-    await selectedAccount.updateMetadata();
-    console.log(await selectedAccount.genAPIHeaders())
-})();
 
 
 
