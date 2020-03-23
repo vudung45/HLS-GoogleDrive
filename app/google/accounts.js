@@ -166,7 +166,7 @@ class JobResponse {
 }
 
 const BATCH_SIZE = 10; // process 10 jobs at a time
-const BATCH_DELAY = 3000; // delay 1 seconds in between batches
+const BATCH_DELAY = 5000; // delay 1 seconds in between batches
 
 /* Managing multiple service accounts */
 export class AccountManager {
