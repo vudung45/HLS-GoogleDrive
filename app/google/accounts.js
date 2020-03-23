@@ -20,7 +20,6 @@ async function retryApi(apiCoroutine) {
             error = e;
         });
         if(error) {
-            console.log(error);
             // if(error.code !== 403  || error.code !== 500) {
             //     bail(error);
             //     return;
@@ -202,7 +201,7 @@ export class AccountManager {
             } catch (e) {
                 console.error(e);
             }
-            await sleep(BATCH_DELAY);
+            await sleep(Math.max(1, BATCH_DELAY * jobsToExecute.length / BATCH_SIZE));
         }
     }
 
