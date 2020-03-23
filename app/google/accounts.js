@@ -277,7 +277,7 @@ export class AccountManager {
         return googleFileId;
     }
 
-    async updateAccountMetadata(accountIdentifier) {
+    updateAccountMetadata(accountIdentifier) {
         let jobId = uuidv4();
         let job = new QueueJob("updateAccountMetadata", {identifier: accountIdentifier}, jobId);
         this._jobQueue.push(job);
@@ -301,7 +301,7 @@ export class AccountManager {
     async _updateAccountMetadata(aux) {
         await this.accounts[aux.identifier].updateMetadata().catch(e => {
             console.error(e);
-            throw "[Account Manager] Failed to upload account "+aux.identifier+" metadata"
+            throw "[Account Manager] Failed to upload account "+aux.identifier+" metadata";
         });
     }
 
