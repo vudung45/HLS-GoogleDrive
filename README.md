@@ -7,9 +7,9 @@
 
 # TODOS:
 - Upload -> Process:
-    + Allow user to upload raw video to our service. The video will then be broken down into chunks, and distributed across multiple google drive accounts
+    + ~Allow user to upload raw video to our service. The video will then be broken down into chunks, and distributed across multiple google drive accounts~
 - Streaming:
-    + Dynamically generate m3u8 file for processed videos
+    + ~Dynamically generate m3u8 file for processed videos~
     + Ensure that the link to the chunk is alive. Two possible solutions are: Passive Health Monitoring (Heartbeat), or just lazily checks on demand. The most optimal approach still needs to be verified. Ideally, lazy checks should yield the best consistency, however, the latency might be too much for live streaming.
 - Possible LIVE STREAMING feature ( Like Twitch Live, Facebook Live, Youtube Live)
 
